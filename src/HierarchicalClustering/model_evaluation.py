@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_curve
-from dataset import FashionMNISTDataset
+from ..Dataset.dataset import FashionMNISTDataset
 from hierarchical_classifier import HierarchicalClassifier
 from hierarchical_clustering import HierarchicalClustering
 import pandas as pd

@@ -4,7 +4,7 @@ import torch
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from simclr import SimCLR
-from dataset import SimCLRDataset
+from ..Dataset.dataset import SimCLRDataset
 
 def main():
     train_data = pd.read_csv("../data/fashion-mnist_train.csv")

@@ -7,7 +7,7 @@ from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_prec
 from sklearn.preprocessing import label_binarize
 import matplotlib.pyplot as plt
 import seaborn as sns
-from dataset import FashionMNISTDataset
+from ..Dataset.dataset import FashionMNISTDataset
 from simclr import SimCLR
 from simclr_classifier import SimCLRClassifier
 from torchvision import transforms

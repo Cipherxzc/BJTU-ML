@@ -9,7 +9,6 @@ from torchvision.models import ResNet18_Weights
 from safetensors.torch import save_file, load_file
 
 
-
 class NTXentLoss(nn.Module):
     def __init__(self, temperature):
         super(NTXentLoss, self).__init__()
@@ -46,7 +45,8 @@ class SimCLR(nn.Module):
         self.criterion = NTXentLoss(temperature=0.5)
 
     def forward(self, x):
-        return self.projector(self.encoder(x))
+        features = self.encoder(x)
+        return features, self.projector(features)
 
     def fit(self, train_loader, epochs=10, device=None):
         if device is None:
@@ -67,8 +67,8 @@ class SimCLR(nn.Module):
                     optimizer.zero_grad()
 
                     images1, images2 = images1.to(device), images2.to(device)
-                    z1 = self.forward(images1)
-                    z2 = self.forward(images2)
+                    _, z1 = self.forward(images1)
+                    _, z2 = self.forward(images2)
 
                     loss = self.criterion(z1, z2)
                     loss.backward()

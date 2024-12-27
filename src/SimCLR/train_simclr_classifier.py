@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from simclr import SimCLR
 from simclr_classifier import SimCLRClassifier
-from dataset import FashionMNISTDataset
+from ..Dataset.dataset import FashionMNISTDataset
 
 def main():
     train_data = pd.read_csv("../data/fashion-mnist_train.csv")
@@ -13,7 +13,6 @@ def main():
 
     print(f"Train data shape: {train_data.shape}")
     print(f"Test data shape: {test_data.shape}")
-
 
 
     # 将 ndarray 调整为可被 ResNet 接受的 tensor (3 * 244 * 244)
@@ -31,7 +30,6 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=256, shuffle=True, num_workers=4)
 
 
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = SimCLR(out_dim=128)
@@ -41,7 +39,6 @@ def main():
     classifier = SimCLRClassifier(model, num_classes=10).to(device)
     classifier.fit(train_loader, epochs=1)
     # classifier.save_model('../models/simclr_classifier_model.safetensors')
-
 
 
     def evaluate(model, test_loader, device='cuda'):

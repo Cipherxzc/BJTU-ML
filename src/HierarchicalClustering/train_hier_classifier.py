@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from hierarchical_clustering import HierarchicalClustering
 from hierarchical_classifier import HierarchicalClassifier
-from dataset import FashionMNISTDataset
+from ..Dataset.dataset import FashionMNISTDataset
 
 def evaluation_fn(y, labels):
     return ((1 - adjusted_rand_score(y, labels)) / 2)**2 + (1 - normalized_mutual_info_score(y, labels))**2
