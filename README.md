@@ -2,7 +2,7 @@
 
 ## 流程图示
 
-\[
+$$
 \begin{array}{c}
 \text{FashionMNIST} \\
 \downarrow \\
@@ -23,7 +23,7 @@
 \downarrow \\
 \text{使用 Test Set 评估模型}
 \end{array}
-\]
+$$
 
 ## 详细步骤
 
