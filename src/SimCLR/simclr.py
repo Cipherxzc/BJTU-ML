@@ -3,9 +3,8 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-import torchvision.models as models
 import torch.optim as optim
-from torchvision.models import ResNet18_Weights
+from torchvision.models import resnet18, ResNet18_Weights
 from safetensors.torch import save_file, load_file
 
 
@@ -34,7 +33,7 @@ class NTXentLoss(nn.Module):
 class SimCLR(nn.Module):
     def __init__(self, out_dim):
         super(SimCLR, self).__init__()
-        self.encoder = models.resnet18(weights=ResNet18_Weights.DEFAULT)
+        self.encoder = resnet18(weights=ResNet18_Weights.DEFAULT)
         self.projector = nn.Sequential(
             nn.Linear(self.encoder.fc.in_features, 512),
             nn.ReLU(),

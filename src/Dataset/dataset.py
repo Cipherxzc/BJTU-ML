@@ -1,5 +1,5 @@
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
 
@@ -7,6 +7,8 @@ class FashionMNISTDataset(Dataset):
     def __init__(self, data, transform=None):
         self.data = data
         self.transform = transform
+        self.classes = self.data.iloc[:, 0].unique()
+        self.num_classes = len(self.classes)
 
     def __len__(self):
         return len(self.data)
@@ -26,6 +28,8 @@ class SimCLRDataset(Dataset):
     def __init__(self, data, augmentation):
         self.data = data
         self.augmentation = augmentation
+        self.classes = self.data.iloc[:, 0].unique()
+        self.num_classes = len(self.classes)
 
     def __len__(self):
         return len(self.data)
