@@ -30,6 +30,7 @@ class NTXentLoss(nn.Module):
         loss = self.criterion(sim, labels)
         return loss / (N * 2)
 
+
 class SimCLR(nn.Module):
     def __init__(self, out_dim):
         super(SimCLR, self).__init__()

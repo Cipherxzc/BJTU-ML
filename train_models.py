@@ -42,7 +42,7 @@ def main():
         },
         "HierarchicalClustering": {
             "save_path": ["models/hierarchical_clustering_model_1.safetensors", "models/hierarchical_clustering_model_2.safetensors"],
-            "module": "src.HierarchicalClustering.train_hier_clustering"
+            "module": "src.HierarchicalClustering.train_hier_classifier"
         },
         "Linear": {
             "save_path": ["models/linear_pca_model_1.pkl", "models/linear_pca_model_2.pkl"],

@@ -1,7 +1,24 @@
-import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
+
+
+class FeaturesDataset(Dataset):
+    def __init__(self, data):
+        self.data = data
+        self.classes = self.data.iloc[:, -1].unique()
+        self.num_classes = len(self.classes)
+        self.feature_dim = self.data.shape[1] - 1  # 计算特征维度
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        feature = self.data.iloc[idx, :-1].values
+        label = self.data.iloc[idx, -1]
+        
+        return feature, label
+
 
 class FashionMNISTDataset(Dataset):
     def __init__(self, data, transform=None):
@@ -23,6 +40,7 @@ class FashionMNISTDataset(Dataset):
             image = self.transform(image)
         
         return image, label
+
 
 class SimCLRDataset(Dataset):
     def __init__(self, data, augmentation):

@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from .naive_bayes import NaiveBayes
 from sklearn.metrics import accuracy_score
@@ -32,6 +31,7 @@ def train_naive_bayes(train_data_path, test_data_path, model_save_path):
     print(f'Predicted probabilities for the first test sample: {y_proba[0]}')
 
     model.save_model(model_save_path)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train NaiveBayes model.")
