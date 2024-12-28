@@ -12,10 +12,10 @@ def train_naive_bayes(train_data_path, test_data_path, model_save_path):
     print(f"Train data shape: {train_data.shape}")
     print(f"Test data shape: {test_data.shape}")
 
-    X_train = train_data.iloc[:, 1:].values
-    y_train = train_data.iloc[:, 0].values
-    X_test = test_data.iloc[:, 1:].values
-    y_test = test_data.iloc[:, 0].values
+    X_train = train_data.iloc[:, :-1].values
+    y_train = train_data.iloc[:, -1].values
+    X_test = test_data.iloc[:, :-1].values
+    y_test = test_data.iloc[:, -1].values
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -25,8 +25,6 @@ def train_naive_bayes(train_data_path, test_data_path, model_save_path):
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
-    print(y_pred)
-    print(y_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy:.2f}')
 
