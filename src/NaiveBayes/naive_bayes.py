@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+from tqdm import tqdm
 
 class NaiveBayes:
     def __init__(self):
@@ -18,7 +19,7 @@ class NaiveBayes:
         self.var = np.zeros((n_classes, n_features), dtype=np.float64)
         self.priors = np.zeros(n_classes, dtype=np.float64)
 
-        for idx, c in enumerate(self.classes):
+        for idx, c in tqdm(enumerate(self.classes), total=n_classes, desc="Fitting classes"):
             X_c = X[y == c]
             self.mean[idx, :] = X_c.mean(axis=0)
             self.var[idx, :] = X_c.var(axis=0)

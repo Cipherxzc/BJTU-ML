@@ -13,12 +13,12 @@ def main():
     )
     parser.add_argument(
         "--train-data",
-        default="data/fashion-mnist_train.csv",
+        default="",
         help="Path to the training data CSV file."
     )
     parser.add_argument(
         "--test-data",
-        default="data/fashion-mnist_test.csv",
+        default="",
         help="Path to the testing data CSV file."
     )
     parser.add_argument(
@@ -26,34 +26,57 @@ def main():
         default="",
         help="Path to save the trained model."
     )
+    parser.add_argument(
+        "--mode",
+        choices=["1", "2"],
+        help="Select the training mode for non-SimCLR and non-ResNet models."
+    )
     args = parser.parse_args()
 
     selected_model = args.model
 
-    model_default_save_path = {
-        "Adaboost": "models/adaboost_model.pkl",
-        "HierarchicalClustering": "models/hierarchical_clustering_model.safetensors",
-        "Linear": "models/linear_pca_model.pkl",
-        "NaiveBayes": "models/naive_bayes_model.pkl",
-        "SimCLR": "models/simclr_model.safetensors",
-        "ResNet": "models/resnet_model.safetensors"
+    model_info = {
+        "Adaboost": {
+            "save_path": ["models/adaboost_model_1.pkl", "models/adaboost_model_2.pkl"],
+            "module": "src.Adaboost.train_adaboost"
+        },
+        "HierarchicalClustering": {
+            "save_path": ["models/hierarchical_clustering_model_1.safetensors", "models/hierarchical_clustering_model_2.safetensors"],
+            "module": "src.HierarchicalClustering.train_hier_clustering"
+        },
+        "Linear": {
+            "save_path": ["models/linear_pca_model_1.pkl", "models/linear_pca_model_2.pkl"],
+            "module": "src.Linear.train_linear"
+        },
+        "NaiveBayes": {
+            "save_path": ["models/naive_bayes_model_1.pkl", "models/naive_bayes_model_2.pkl"],
+            "module": "src.NaiveBayes.train_naive_bayes"
+        },
+        "SimCLR": {
+            "save_path": ["models/simclr_model.safetensors"],
+            "module": "src.SimCLR.train_simclr"
+        },
+        "ResNet": {
+            "save_path": ["models/resnet_model.safetensors"],
+            "module": "src.ResNet.train_resnet"
+        }
     }
 
-    if not args.model_save_path:
-        args.model_save_path = model_default_save_path[selected_model]
+    if selected_model in ["SimClr", "ResNet"]:
+        train_data = args.train_data if args.train_data else "data/fashion-mnist_train.csv"
+        test_data = args.test_data if args.test_data else "data/fashion-mnist_test.csv"
+        save_path = args.model_save_path if args.model_save_path else model_info[selected_model]["save_path"][0]
+    else:
+        if not args.mode:
+            parser.error("Training mode must be specified for non-SimCLR and non-ResNet models.")
+        
+        train_data = args.train_data if args.train_data else f"data/features{args.mode}_train.csv"
+        test_data = args.test_data if args.test_data else f"data/features{args.mode}_test.csv"
+        save_path = args.model_save_path if args.model_save_path else model_info[selected_model]["save_path"][int(args.mode)-1]
 
-    model_to_module = {
-        "Adaboost": "src.Adaboost.train_adaboost",
-        "HierarchicalClustering": "src.HierarchicalClustering.train_hier_clustering",
-        "Linear": "src.Linear.train_linear",
-        "NaiveBayes": "src.NaiveBayes.train_naive_bayes",
-        "SimCLR": "src.SimCLR.train_simclr",
-        "ResNet": "src.ResNet.train_resnet"
-    }
+    script_module = model_info[selected_model]["module"]
 
-    script_module = model_to_module[selected_model]
-
-    subprocess.run(["python", "-m", script_module, "--train-data", args.train_data, "--test-data", args.test_data, "--model-save-path", args.model_save_path], check=True)
+    subprocess.run(["python", "-m", script_module, "--train-data", train_data, "--test-data", test_data, "--model-save-path", save_path], check=True)
 
 if __name__ == "__main__":
     main()

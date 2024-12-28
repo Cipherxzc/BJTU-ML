@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from .naive_bayes import NaiveBayes
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 import argparse
 
 def train_naive_bayes(train_data_path, test_data_path, model_save_path):
@@ -16,14 +17,16 @@ def train_naive_bayes(train_data_path, test_data_path, model_save_path):
     X_test = test_data.iloc[:, 1:].values
     y_test = test_data.iloc[:, 0].values
 
-    # 归一化
-    X_train = X_train / 255.0
-    X_test = X_test / 255.0
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
 
     model = NaiveBayes()
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
+    print(y_pred)
+    print(y_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy:.2f}')
 
