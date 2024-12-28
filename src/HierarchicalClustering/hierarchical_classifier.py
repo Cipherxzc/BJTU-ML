@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import numpy as np
 from safetensors.torch import save_file, load_file
 from .hierarchical_clustering import HierarchicalClustering
 
@@ -67,17 +68,43 @@ class HierarchicalClassifier(nn.Module):
 
             print(f"Epoch [{epoch+1}/{epochs}], Loss: {total_loss/len(train_loader):.4f}, Accuracy: {100 * correct / total:.2f}%")
 
-    def predict(self, X):
-        X_tensor = torch.tensor(X, dtype=torch.float32)
-        outputs = self.forward(X_tensor)
-        _, labels = torch.max(outputs, dim=1)
-        return labels.numpy()
-    
-    def predict_prob(self, X):
-        X_tensor = torch.tensor(X, dtype=torch.float32)
-        outputs = self.forward(X_tensor)
-        probabilities = F.softmax(outputs, dim=1)
-        return probabilities.numpy()
+    def predict(self, X, batch_size=256, device=None):
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        self.to(device)
+        self.eval()
+        all_labels = []
+        num_samples = X.shape[0]
+
+        with torch.no_grad():
+            for i in tqdm(range(0, num_samples, batch_size), desc="Predicting"):
+                X_batch = X[i:i + batch_size]
+                X_tensor = torch.tensor(X_batch, dtype=torch.float32).to(device)
+                outputs = self.forward(X_tensor)
+                _, labels = torch.max(outputs, dim=1)
+                all_labels.append(labels.cpu().numpy())
+
+        return np.concatenate(all_labels)
+
+    def predict_proba(self, X, batch_size=256, device=None):
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        self.to(device)
+        self.eval()
+        all_probabilities = []
+        num_samples = X.shape[0]
+
+        with torch.no_grad():
+            for i in tqdm(range(0, num_samples, batch_size), desc="Predicting Probabilities"):
+                X_batch = X[i:i + batch_size]
+                X_tensor = torch.tensor(X_batch, dtype=torch.float32).to(device)
+                outputs = self.forward(X_tensor)
+                probabilities = F.softmax(outputs, dim=1)
+                all_probabilities.append(probabilities.cpu().numpy())
+
+        return np.concatenate(all_probabilities)
     
     def save_model(self, path):
         save_file(self.state_dict(), path)

@@ -23,14 +23,15 @@ def train_naive_bayes(train_data_path, test_data_path, model_save_path):
     model = NaiveBayes()
     model.fit(X_train, y_train)
 
+    model.save_model(model_save_path)
+
+
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy:.2f}')
 
     y_proba = model.predict_proba(X_test)
     print(f'Predicted probabilities for the first test sample: {y_proba[0]}')
-
-    model.save_model(model_save_path)
 
 
 if __name__ == "__main__":

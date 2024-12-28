@@ -14,27 +14,29 @@ def train_hier_classifier(train_data_path, test_data_path, model_save_path):
     print(f"Train data shape: {train_data.shape}")
     print(f"Test data shape: {test_data.shape}")
 
-
     train_dataset = FeaturesDataset(train_data)
     train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True, num_workers=4)
 
     X_test = test_data.iloc[:, :-1].values
     y_test = test_data.iloc[:, -1].values
 
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = HierarchicalClassifier(num_classes=10, feature_dim=train_dataset.feature_dim).to(device)
     model.fit(train_loader, epochs=10, device=device)
     
+    model.save_model(model_save_path)
 
-    y_pred = model.predict(X_test)
+    # model = HierarchicalClassifier(num_classes=10, feature_dim=train_dataset.feature_dim).to(device)
+    # model.load_model(model_save_path)
+
+    y_pred = model.predict(X_test, device=device)
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy:.2f}')
 
-    y_proba = model.predict_proba(X_test)
+    y_proba = model.predict_proba(X_test, device=device)
     print(f'Predicted probabilities for the first test sample: {y_proba[0]}')
-
-    model.save_model(model_save_path)
 
 
 if __name__ == "__main__":
