@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+from tqdm import tqdm
 
 class ShallowDecisionTree:
     def __init__(self, max_depth=3):
@@ -96,6 +97,7 @@ class AdaBoost:
         self.models = []  # 保存每个弱分类器
         self.model_weights = []  # 保存每个弱分类器的权重
         self.classes_ = None
+        self.eps = 1e-6
 
     def fit(self, X, y):
         self.classes_ = np.unique(y)  # 获取所有类别
@@ -104,7 +106,7 @@ class AdaBoost:
         # 初始化样本权重
         weights = np.ones(n_samples) / n_samples
 
-        for i in range(self.n_estimators):
+        for i in tqdm(range(self.n_estimators), desc="Training AdaBoost", unit="estimator"):
             # 创建一个弱分类器实例
             model = self.base_model(**self.base_model_params)
 
@@ -122,7 +124,7 @@ class AdaBoost:
             print(f"The {i+1} base_model's error: {error:.4f}\n")
 
             # 如果分类误差为 0 或 >= 0.5，停止训练
-            if error >= 0.5 or error == 0:
+            if error >= 0.5-self.eps or error == 0:
                 print("Error: error >= 0.5 or error == 0\n")
                 break
 

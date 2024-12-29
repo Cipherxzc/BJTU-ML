@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+from tqdm import tqdm
 
 class SoftmaxRegression:
     def __init__(self, learning_rate=0.01, iterations=1000):
@@ -20,7 +21,7 @@ class SoftmaxRegression:
         # 将标签转化为one-hot编码
         y_one_hot = np.eye(num_classes)[y]
         
-        for _ in range(self.iterations):
+        for _ in tqdm(range(self.iterations), desc="Training Progress", unit="iteration"):
             # 计算模型输出
             Z = np.dot(X, self.weights.T) + self.bias
             predictions = self.softmax(Z)

@@ -40,7 +40,7 @@ def train_hier_classifier(train_data_path, test_data_path, model_save_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train NaiveBayes model.")
+    parser = argparse.ArgumentParser(description="Train Hierarchical model.")
     parser.add_argument("--train-data", required=True, help="Path to the training data CSV file.")
     parser.add_argument("--test-data", required=True, help="Path to the testing data CSV file.")
     parser.add_argument("--model-save-path", required=True, help="Path to save the trained model.")

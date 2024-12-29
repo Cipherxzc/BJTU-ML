@@ -40,5 +40,5 @@ if __name__ == "__main__":
     parser.add_argument("--test-data", required=True, help="Path to the testing data CSV file.")
     parser.add_argument("--model-save-path", required=True, help="Path to save the trained model.")
     args = parser.parse_args()
-
+    
     train_naive_bayes(args.train_data, args.test_data, args.model_save_path)
