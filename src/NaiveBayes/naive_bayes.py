@@ -1,6 +1,6 @@
 import numpy as np
-import pickle
 from tqdm import tqdm
+from safetensors.numpy import save_file, load_file
 
 class NaiveBayes:
     def __init__(self):
@@ -65,16 +65,19 @@ class NaiveBayes:
         return exp_posteriors / np.sum(exp_posteriors)
 
     def save_model(self, filename):
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file)
-        print(f"Model saved to {filename}")
+        data = {
+            'classes': self.classes,
+            'mean': self.mean,
+            'var': self.var,
+            'priors': self.priors
+        }
+        save_file(data, filename)
+        print(f"Model parameters saved to {filename}")
 
-    @classmethod
-    def load_model(cls, filename):
-        with open(filename, 'rb') as file:
-            model = pickle.load(file)
-        if isinstance(model, cls):
-            print(f"Model loaded from {filename}")
-            return model
-        else:
-            raise TypeError(f"Expected object of type {cls.__name__}, got {type(model).__name__}")
+    def load_model(self, filename):
+        data = load_file(filename)
+        self.classes = data['classes']
+        self.mean = data['mean']
+        self.var = data['var']
+        self.priors = data['priors']
+        print(f"Model parameters loaded from {filename}")

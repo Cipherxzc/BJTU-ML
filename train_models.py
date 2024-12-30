@@ -49,7 +49,7 @@ def main():
             "module": "src.Linear.train_linear"
         },
         "NaiveBayes": {
-            "save_path": ["models/naive_bayes_model_1.pkl", "models/naive_bayes_model_2.pkl"],
+            "save_path": ["models/naive_bayes_model_1.safetensors", "models/naive_bayes_model_2.safetensors"],
             "module": "src.NaiveBayes.train_naive_bayes"
         },
         "SimCLR": {

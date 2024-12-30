@@ -1,51 +1,92 @@
 import argparse
-import os
-import subprocess
+import torch
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from src.Adaboost.adaboost_classifier import AdaBoost
+from src.HierarchicalClustering.hierarchical_classifier import HierarchicalClassifier
+from src.Linear.linear_pca_classifier import SoftmaxRegression
+from src.NaiveBayes.naive_bayes import NaiveBayes
+from src.Dataset.quantized import equal_frequency_binning
+
+def no_transform(X):
+    return X
+
+
+model_info = {
+    "Adaboost": {
+        "save_path": ["models/adaboost_model_1.pkl", "models/adaboost_model_2.pkl"],
+        "model": AdaBoost,
+        "transform": equal_frequency_binning
+    },
+    "HierarchicalClustering": {
+        "save_path": ["models/hierarchical_clustering_model_1.safetensors", "models/hierarchical_clustering_model_2.safetensors"],
+        "model": HierarchicalClassifier,
+        "transform": no_transform
+    },
+    "Linear": {
+        "save_path": ["models/linear_pca_model_1.pkl", "models/linear_pca_model_2.pkl"],
+        "model": SoftmaxRegression,
+        "transform": StandardScaler().fit_transform
+    },
+    "NaiveBayes": {
+        "save_path": ["models/naive_bayes_model_1.safetensors", "models/naive_bayes_model_2.safetensors"],
+        "model": NaiveBayes,
+        "transform": StandardScaler().fit_transform
+    },
+}
+
+
+def evaluate_model(model_name, mode):
+    test_data = f"data/features{mode}_test.csv"
+    save_path = model_info[model_name]["save_path"][int(mode)-1]
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = model_info[model_name]["model"]()
+    if hasattr(model, 'to'):
+        model = model.to(device)
+
+    model.load_model(save_path)
+
+    test_data = pd.read_csv(test_data)
+    print(f"Test data shape: {test_data.shape}")
+
+    X = test_data.iloc[:, :-1].values
+    y = test_data.iloc[:, -1].values
+
+    X = model_info[model_name]["transform"](X)
+
+    
+    y_pred = model.predict(X)
+    y_proba = model.predict_proba(X)
+
+    print(y)
+    print(y_pred)
+    print(y_proba)
+    
 
 def main():
-    # 定义支持的模型列表
-    available_models = ["Adaboost", "HierarchicalClustering", "Linear", "NaiveBayes", "SimCLR"]
+    available_models = ["Adaboost", "HierarchicalClustering", "Linear", "NaiveBayes"]
 
-    # 使用 argparse 接收命令行参数
-    parser = argparse.ArgumentParser(description="Select models for evaluation.")
+    parser = argparse.ArgumentParser(description="Select models for training.")
     parser.add_argument(
-        "-m", "--models",
-        nargs="+",
+        "-m", "--model",
         choices=available_models,
         required=True,
-        help=f"Select one or more models to evaluate. Available models: {', '.join(available_models)}"
+        help=f"Select one model to evaluate. Available models: {', '.join(available_models)}"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["1", "2"],
+        required=True,
+        help="Select the training mode for non-SimCLR and non-ResNet models."
     )
     args = parser.parse_args()
 
-    # 获取用户选择的模型列表
-    selected_models = args.models
+    selected_model = args.model
 
-    # 提示用户选择的模型
-    print("You have selected the following models for evaluation:")
-    for model in selected_models:
-        print(f" - {model}")
+    evaluate_model(selected_model, args.mode)
 
-    # 遍历用户选择的模型，调用对应文件夹中的 model_evaluation.py
-    for model in selected_models:
-        print(f"\nStarting evaluation for {model} model...")
-        model_script_path = os.path.join(model, "model_evaluation.py")
-
-        # 检查对应文件夹中的 model_evaluation.py 是否存在
-        if not os.path.exists(model_script_path):
-            print(f"Error: The evaluation script for {model} does not exist at {model_script_path}. Skipping...")
-            continue
-
-        # 调用子进程运行对应的 model_evaluation.py，并设置 cwd 为模型文件夹
-        try:
-            subprocess.run(["python", "model_evaluation.py"], cwd=model, check=True)
-            print(f"Evaluation for {model} completed successfully.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error: An issue occurred while evaluating {model}.")
-            print(f"Details: {e}")
-        except Exception as e:
-            print(f"Unexpected error while evaluating {model}: {e}")
-
-    print("\nAll selected evaluations are complete.")
 
 if __name__ == "__main__":
     main()

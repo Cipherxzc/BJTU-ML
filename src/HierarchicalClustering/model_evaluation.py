@@ -78,6 +78,11 @@ def evaluate_model(model, data_loader, device):
     all_predictions = []
     all_probs = []
 
+    all_probs = model.predict_porba(X)
+    all_predictions = model.predict(X)
+    all_labels = y
+
+
     with torch.no_grad():
         for images, labels in data_loader:
             images, labels = images.to(device), labels.to(device)
@@ -110,22 +115,20 @@ def evaluate_model(model, data_loader, device):
 def main():
     os.makedirs("../evaluation_results", exist_ok=True)
 
-    # Load test data
-    test_data = pd.read_csv("../data/fashion-mnist_test.csv")
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5], std=[0.5]),
-    ])
-    test_dataset = FashionMNISTDataset(test_data, transform=transform)
-    test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=4)
+    train_data = pd.read_csv(train_data_path)
+    test_data = pd.read_csv(test_data_path)
 
-    # Load the hierarchical clustering model
-    clustering_model = HierarchicalClustering.load_model("../models/hierarchical_clustering_model.pkl")
+    print(f"Train data shape: {train_data.shape}")
+    print(f"Test data shape: {test_data.shape}")
 
-    # Load the hierarchical classifier model
+    X_test = test_data.iloc[:, :-1].values
+    y_test = test_data.iloc[:, -1].values
+
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    classifier = HierarchicalClassifier(clustering_model, num_classes=10).to(device)
-    classifier.load_model("../models/hierarchical_classifier_model.safetensors", device=device)
+
+    model = HierarchicalClassifier(num_classes=10, feature_dim=train_dataset.feature_dim).to(device)
+    model.load_model("../models/hierarchical_classifier_model.safetensors", device=device)
 
     # Evaluate the model
     accuracy, precision, recall, f1, precision_weighted, recall_weighted, f1_weighted, all_labels, all_predictions, all_probs = evaluate_model(classifier, test_loader, device)
