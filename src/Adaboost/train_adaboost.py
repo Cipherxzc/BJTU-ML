@@ -1,8 +1,7 @@
 import pandas as pd
-from .adaboost_classifier import ShallowDecisionTree, AdaBoost
+from .adaboost_classifier import AdaBoost
 from ..Dataset.quantized import equal_frequency_binning
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
 import argparse
 
 def train_adaboost(train_data_path, test_data_path, model_save_path):
@@ -18,11 +17,7 @@ def train_adaboost(train_data_path, test_data_path, model_save_path):
 
     X_test = test_data.drop("label", axis=1).values
     y_test = test_data["label"].values
-
-    # 数据预处理：标准化
-    # scaler = StandardScaler()
-    # X_train = scaler.fit_transform(X_train)
-    # X_test = scaler.transform(X_test)
+    
 
     # 量化处理
     X_train_quantized = equal_frequency_binning(X_train, n_bins=10)
