@@ -32,6 +32,7 @@ def train_adaboost(train_data_path, test_data_path, model_save_path):
     model.fit(X_train_quantized, y_train)
 
     model.save_model(model_save_path)
+    model.load_model(model_save_path)
 
     y_pred = model.predict(X_test_quantized)
     accuracy = accuracy_score(y_test, y_pred)
