@@ -1,6 +1,9 @@
 import numpy as np
-import pickle
 from tqdm import tqdm
+from sklearn.decomposition import PCA
+from safetensors.numpy import save_file, load_file
+import pickle
+
 
 class SoftmaxRegression:
     def __init__(self, learning_rate=0.01, iterations=1000):
@@ -8,12 +11,15 @@ class SoftmaxRegression:
         self.iterations = iterations
         self.weights = None
         self.bias = None
+        self.pca = PCA(n_components=50)
     
     def softmax(self, Z):
         exp_Z = np.exp(Z - np.max(Z, axis=1, keepdims=True))  # 防止溢出
         return exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
     
-    def fit(self, X, y, num_classes):
+    def fit(self, X, y, num_classes=10):
+        X = self.pca.fit_transform(X)
+        
         m, n = X.shape
         self.weights = np.zeros((num_classes, n))  # 每个类别一个权重向量
         self.bias = np.zeros(num_classes)  # 每个类别一个偏置
@@ -35,25 +41,38 @@ class SoftmaxRegression:
             self.bias -= self.learning_rate * db
     
     def predict(self, X):
+        X = self.pca.transform(X)
         Z = np.dot(X, self.weights.T) + self.bias
         predictions = self.softmax(Z)
         return np.argmax(predictions, axis=1)
 
     def predict_proba(self, X):
+        X = self.pca.transform(X)
         Z = np.dot(X, self.weights.T) + self.bias
         return self.softmax(Z)
     
     def save_model(self, filename):
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file)
-        print(f"Model saved to {filename}")
+        data = {
+            'weights': self.weights,
+            'bias': self.bias,
+            'learning_rate': np.array([self.learning_rate]),
+            'iterations': np.array([self.iterations])
+        }
+        save_file(data, filename + '_model.safetensors')
+        
+        with open(filename + '_pca.pkl', 'wb') as pca_file:
+            pickle.dump(self.pca, pca_file)
+        
+        print(f"Model saved to {filename}_model.safetensors and {filename}_pca.pkl")
 
-    @classmethod
-    def load_model(cls, filename):
-        with open(filename, 'rb') as file:
-            model = pickle.load(file)
-        if isinstance(model, cls):
-            print(f"Model loaded from {filename}")
-            return model
-        else:
-            raise TypeError(f"Expected object of type {cls.__name__}, got {type(model).__name__}") 
+    def load_model(self, filename):
+        data = load_file(filename + '_model.safetensors')
+        self.weights = data['weights']
+        self.bias = data['bias']
+        self.learning_rate = data['learning_rate'][0]
+        self.iterations = data['iterations'][0]
+        
+        with open(filename + '_pca.pkl', 'rb') as pca_file:
+            self.pca = pickle.load(pca_file)
+        
+        print(f"Model loaded from {filename}_model.safetensors and {filename}_pca.pkl")

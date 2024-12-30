@@ -1,7 +1,8 @@
 import argparse
 import torch
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
 from src.Adaboost.adaboost_classifier import AdaBoost
 from src.HierarchicalClustering.hierarchical_classifier import HierarchicalClassifier
 from src.Linear.linear_pca_classifier import SoftmaxRegression
@@ -24,14 +25,14 @@ model_info = {
         "transform": no_transform
     },
     "Linear": {
-        "save_path": ["models/linear_pca_model_1.pkl", "models/linear_pca_model_2.pkl"],
+        "save_path": ["models/linear_1", "models/linear_2"],
         "model": SoftmaxRegression,
-        "transform": StandardScaler().fit_transform
+        "transform": no_transform
     },
     "NaiveBayes": {
         "save_path": ["models/naive_bayes_model_1.safetensors", "models/naive_bayes_model_2.safetensors"],
         "model": NaiveBayes,
-        "transform": StandardScaler().fit_transform
+        "transform": no_transform
     },
 }
 
@@ -63,6 +64,10 @@ def evaluate_model(model_name, mode):
     print(y)
     print(y_pred)
     print(y_proba)
+
+
+    accuracy = accuracy_score(y, y_pred)
+    print(f'Accuracy: {accuracy:.2f}')
     
 
 def main():

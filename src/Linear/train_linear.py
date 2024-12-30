@@ -1,7 +1,6 @@
 import pandas as pd
 from .linear_pca_classifier import SoftmaxRegression
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import argparse
 
@@ -18,22 +17,14 @@ def train_linear(train_data_path, test_data_path, model_save_path):
     X_test = test_data.drop("label", axis=1).values
     y_test = test_data["label"].values
 
-    # 数据标准化：将数据标准化到均值为0，方差为1
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-
-    # 使用 PCA 进行降维
-    pca = PCA(n_components=50)  # 保留50个主成分
-    X_train_pca = pca.fit_transform(X_train)
-    X_test_pca = pca.transform(X_test)
 
     model = SoftmaxRegression(learning_rate=0.001, iterations=1000)
-    model.fit(X_train_pca, y_train, num_classes=10)
+    model.fit(X_train, y_train, num_classes=10)
 
     model.save_model(model_save_path)
+    model.load_model(model_save_path)
 
-    y_pred = model.predict(X_test_pca)
+    y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Accuracy: {accuracy:.2f}')
 

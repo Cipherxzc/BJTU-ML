@@ -45,7 +45,7 @@ def main():
             "module": "src.HierarchicalClustering.train_hier_classifier"
         },
         "Linear": {
-            "save_path": ["models/linear_pca_model_1.pkl", "models/linear_pca_model_2.pkl"],
+            "save_path": ["models/linear_1", "models/linear_2"],
             "module": "src.Linear.train_linear"
         },
         "NaiveBayes": {
