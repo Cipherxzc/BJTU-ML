@@ -63,7 +63,7 @@ def evaluate_model(model_name, mode):
 
     print(y)
     print(y_pred)
-    print(y_proba)
+    # print(y_proba)
 
 
     accuracy = accuracy_score(y, y_pred)
@@ -75,22 +75,18 @@ def main():
 
     parser = argparse.ArgumentParser(description="Select models for training.")
     parser.add_argument(
-        "-m", "--model",
-        choices=available_models,
+        "-m", "--models",
+        nargs='+',
+        choices=[f"{model}1" for model in available_models] + [f"{model}2" for model in available_models],
         required=True,
-        help=f"Select one model to evaluate. Available models: {', '.join(available_models)}"
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["1", "2"],
-        required=True,
-        help="Select the training mode for non-SimCLR and non-ResNet models."
+        help="Select one or more models and modes to evaluate. For example, Adaboost1 or Adaboost2."
     )
     args = parser.parse_args()
 
-    selected_model = args.model
-
-    evaluate_model(selected_model, args.mode)
+    for model_mode in args.models:
+        selected_model = model_mode[:-1]
+        mode = model_mode[-1]
+        evaluate_model(selected_model, mode)
 
 
 if __name__ == "__main__":
