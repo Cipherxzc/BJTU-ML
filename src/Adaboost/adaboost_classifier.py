@@ -90,7 +90,7 @@ class ShallowDecisionTree:
             return node
 
 class AdaBoost:
-    def __init__(self, base_model, n_estimators=50, **base_model_params):
+    def __init__(self, base_model=ShallowDecisionTree, n_estimators=50, **base_model_params):
         self.base_model = base_model
         self.base_model_params = base_model_params  # 决策树的深度
         self.n_estimators = n_estimators
@@ -169,16 +169,29 @@ class AdaBoost:
         return probabilities
 
     def save_model(self, filename):
+        data = {
+            'base_model': self.base_model,
+            'base_model_params': self.base_model_params,
+            'n_estimators': self.n_estimators,
+            'models': self.models,
+            'model_weights': self.model_weights,
+            'classes_': self.classes_,
+            'eps': self.eps
+        }
         with open(filename, 'wb') as file:
-            pickle.dump(self, file)
+            pickle.dump(data, file)
         print(f"Model saved to {filename}")
 
-    @classmethod
-    def load_model(cls, filename):
+    def load_model(self, filename):
         with open(filename, 'rb') as file:
-            model = pickle.load(file)
-        if isinstance(model, cls):
-            print(f"Model loaded from {filename}")
-            return model
-        else:
-            raise TypeError(f"Expected object of type {cls.__name__}, got {type(model).__name__}")
+            data = pickle.load(file)
+        
+        self.base_model = data['base_model']
+        self.base_model_params = data['base_model_params']
+        self.n_estimators = data['n_estimators']
+        self.models = data['models']
+        self.model_weights = data['model_weights']
+        self.classes_ = data['classes_']
+        self.eps = data['eps']
+        
+        print(f"Model loaded from {filename}")

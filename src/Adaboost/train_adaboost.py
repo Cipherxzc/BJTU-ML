@@ -20,16 +20,15 @@ def train_adaboost(train_data_path, test_data_path, model_save_path):
     y_test = test_data["label"].values
 
     # 数据预处理：标准化
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    # scaler = StandardScaler()
+    # X_train = scaler.fit_transform(X_train)
+    # X_test = scaler.transform(X_test)
 
     # 量化处理
     X_train_quantized = equal_frequency_binning(X_train, n_bins=10)
     X_test_quantized = equal_frequency_binning(X_test, n_bins=10)
 
-    base_model = ShallowDecisionTree
-    model = AdaBoost(base_model, n_estimators=50, max_depth=4)
+    model = AdaBoost(n_estimators=50, max_depth=4)
     model.fit(X_train_quantized, y_train)
 
     model.save_model(model_save_path)
